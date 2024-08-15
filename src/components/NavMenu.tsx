@@ -26,7 +26,7 @@ export default function NavMenu() {
     const [userImage, setUserImage] = useState<string | null>(null);
 
 const session = useSession();
-    const user = session?.data?.user;
+const user = session?.data?.user;
     useEffect(() => {
         if (user?.image) {
         setUserImage(user.image);
@@ -57,7 +57,6 @@ return (
                             </div>
                             <Button className='rounded-full ' variant="outline"><Flag/></Button>
                         </div>
-  
                     </div>
                 </SheetTitle>
     <Separator />
