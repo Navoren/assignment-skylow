@@ -1,24 +1,22 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import axios, { AxiosError } from 'axios';
+import Navbar from '@/components/Navbar';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Loader2, Send } from 'lucide-react';
-import { toast } from '@/components/ui/use-toast';
-import Navbar from '@/components/Navbar';
 import { Toaster } from '@/components/ui/toaster';
-import Image from 'next/image'
-import { Box } from 'lucide-react';
+import { toast } from '@/components/ui/use-toast';
+import { auth, db } from '@/lib/firebase';
+import axios, { AxiosError } from 'axios';
+import { addDoc, collection } from 'firebase/firestore';
+import { Box, Loader2, Send } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 import {
   Card,
-  CardContent,
   CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+  CardHeader
+} from "@/components/ui/card";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useSession } from 'next-auth/react';
 
@@ -31,7 +29,8 @@ export default function Home() {
   const [isMessagesLoading, setIsMessagesLoading] = useState(true);
 
   const session = useSession();
-  const user = session?.data?.user;
+  const user = session?.data?.user
+  const user2 = auth.currentUser;
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -80,7 +79,13 @@ export default function Home() {
       if (response.status === 200) {
         setResponseMessage(response.data);
         setMessages([...messages, { prompt, response: response.data }]);
-        setPrompt(''); 
+        setPrompt('');
+        console.log(user2)
+        const docRef = await addDoc(collection(db, 'messages'), {
+          prompt: prompt,
+          response: response.data,
+          userId: user2?.uid,
+        })
       } else {
         toast({
           title: 'Error',
@@ -158,7 +163,7 @@ export default function Home() {
                     <CardDescription>{message.prompt}</CardDescription>
                   </CardHeader>
                 </Card>
-                <Image src={user?.image || ""}
+                <Image src={user2?.photoURL || ""}
                     width={75} height={25}
                     className='rounded-lg ml-3'
                         alt={user?.name || "Avatar"} />
